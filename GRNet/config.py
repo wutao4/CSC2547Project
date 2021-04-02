@@ -28,14 +28,18 @@ __C.DATASETS.KITTI                               = edict()
 __C.DATASETS.KITTI.CATEGORY_FILE_PATH            = './datasets/KITTI.json'
 __C.DATASETS.KITTI.PARTIAL_POINTS_PATH           = '/home/SENSETIME/xiehaozhe/Datasets/KITTI/cars/%s.pcd'
 __C.DATASETS.KITTI.BOUNDING_BOX_FILE_PATH        = '/home/SENSETIME/xiehaozhe/Datasets/KITTI/bboxes/%s.txt'
+__C.DATASETS.CLEARGRASP                          = edict()
+__C.DATASETS.CLEARGRASP.CATEGORY_FILE_PATH       = './datasets/ClearGrasp.json'
+__C.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH      = './datasets/cleargrasp-dataset-pcd/transparent/%s-transparent.pcd'
+__C.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH     = './datasets/cleargrasp-dataset-pcd/opaque/%s-opaque.pcd'
 
 #
 # Dataset
 #
 __C.DATASET                                      = edict()
-# Dataset Options: Completion3D, ShapeNet, ShapeNetCars, KITTI
-__C.DATASET.TRAIN_DATASET                        = 'ShapeNet'
-__C.DATASET.TEST_DATASET                         = 'ShapeNet'
+# Dataset Options: Completion3D, ShapeNet, ShapeNetCars, KITTI, ClearGrasp
+__C.DATASET.TRAIN_DATASET                        = 'ClearGrasp'
+__C.DATASET.TEST_DATASET                         = 'ClearGrasp'
 
 #
 # Constants
