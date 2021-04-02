@@ -1,8 +1,12 @@
-# PyCharm files
-.idea
+# data
+cleargrasp-dataset-pcd/
+cleargrasp-dataset-test-val/
 
 # Pre-trained weights
 *.pth
+
+# PyCharm files
+.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

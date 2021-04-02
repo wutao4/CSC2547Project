@@ -90,7 +90,7 @@ class IO:
 
     @classmethod
     def _read_exr(cls, file_path):
-        return 1.0 / pyexr.open(file_path).get("Depth.Z").astype(np.float32)
+        return pyexr.open(file_path).get("R").squeeze().astype(np.float32)
 
     # References: https://github.com/dimatura/pypcd/blob/master/pypcd/pypcd.py#L275
     # Support PCD files without compression ONLY!
