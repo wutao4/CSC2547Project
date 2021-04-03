@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from tqdm import tqdm
 import yaml
 import open3d
 import pyexr
@@ -50,16 +51,27 @@ def img2pcd(name):
 
     opaque_depth = IO.get(os.path.join(PATH, "%s-opaque-depth-img.exr" % name))
     opaque_pcd = deproject(opaque_depth)[mask_pcd]
+    # randomly sample a subset of point cloud
+    index1 = np.random.choice(opaque_pcd.shape[0], size=int(opaque_pcd.shape[0] * .4), replace=False)
+    opaque_pcd = opaque_pcd[index1]
     IO.put(os.path.join(OPAQUE_PATH, "%s-opaque.pcd" % name), opaque_pcd)
 
     transp_depth = IO.get(os.path.join(PATH, "%s-transparent-depth-img.exr" % name))
     transp_pcd = deproject(transp_depth)[mask_pcd]
+    # randomly sample a smaller subset of point cloud for transparent objects
+    transp_pcd = transp_pcd[index1]
+    index2 = np.random.choice(transp_pcd.shape[0], size=int(transp_pcd.shape[0] * .2), replace=False)
+    transp_pcd = transp_pcd[index2]
     IO.put(os.path.join(TRANSP_PATH, "%s-transparent.pcd" % name), transp_pcd)
+
+    # print(mask_pcd.sum())
+    # print(opaque_pcd.shape)
+    # print(transp_pcd.shape)
 
 
 if __name__ == '__main__':
     n_img = 173
-    for i in range(n_img):
+    for i in tqdm(range(n_img)):
         name = f'{i:09d}'
         img2pcd(name)
 
@@ -67,5 +79,5 @@ if __name__ == '__main__':
     # print(opaq.shape)
     # transp = IO.get(os.path.join(PATH, "000000000-transparent-depth-img.exr")).astype(np.float32)
     # print(transp.shape)
-    # mask = IO.get(os.path.join(PATH, "000000000-mask.png"))
-    # print(mask.shape)
+    # mask = IO.get(os.path.join(PATH, "000000003-mask.png"))
+    # print(mask.sum() * 0.4)
