@@ -46,13 +46,14 @@ def img2pcd(name):
     """Convert a pair of ClearGrasp images with opaque and transparent objects into point clouds.
     """
     mask = IO.get(os.path.join(PATH, "%s-mask.png" % name))
+    mask_pcd = deproject(mask).sum(axis=1) > 0
 
     opaque_depth = IO.get(os.path.join(PATH, "%s-opaque-depth-img.exr" % name))
-    opaque_pcd = deproject(opaque_depth * mask)
+    opaque_pcd = deproject(opaque_depth)[mask_pcd]
     IO.put(os.path.join(OPAQUE_PATH, "%s-opaque.pcd" % name), opaque_pcd)
 
     transp_depth = IO.get(os.path.join(PATH, "%s-transparent-depth-img.exr" % name))
-    transp_pcd = deproject(transp_depth * mask)
+    transp_pcd = deproject(transp_depth)[mask_pcd]
     IO.put(os.path.join(TRANSP_PATH, "%s-transparent.pcd" % name), transp_pcd)
 
 

@@ -1,6 +1,7 @@
 # data
 cleargrasp-dataset-pcd/
 cleargrasp-dataset-test-val/
+shapenet-chair/
 
 # Pre-trained weights
 *.pth
