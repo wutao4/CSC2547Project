@@ -10,14 +10,14 @@ if __name__ == '__main__':
     # set_verbosity_level(VerbosityLevel.Error)  # try to disable printing "Format = .." in read_point_cloud
     # print(get_verbosity_level())
 
-    name = f'{3:09d}'
+    name = f'{11:09d}-2'
 
-    opaque = o3d.io.read_point_cloud("./cleargrasp-dataset-pcd/opaque/%s-opaque.pcd" % name)
+    opaque = o3d.io.read_point_cloud("./cleargrasp-dataset-pcd/opaque/%s.pcd" % name)
     # print(opaque)
     print(np.array(opaque.points).shape)
     o3d.visualization.draw_geometries([opaque])
 
-    transp = o3d.io.read_point_cloud("./cleargrasp-dataset-pcd/transparent/%s-transparent.pcd" % name)
+    transp = o3d.io.read_point_cloud("./cleargrasp-dataset-pcd/transparent/%s.pcd" % name)
     print(np.array(transp.points).shape)
     o3d.visualization.draw_geometries([transp])
 

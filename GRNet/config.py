@@ -30,8 +30,8 @@ __C.DATASETS.KITTI.PARTIAL_POINTS_PATH           = '/home/SENSETIME/xiehaozhe/Da
 __C.DATASETS.KITTI.BOUNDING_BOX_FILE_PATH        = '/home/SENSETIME/xiehaozhe/Datasets/KITTI/bboxes/%s.txt'
 __C.DATASETS.CLEARGRASP                          = edict()
 __C.DATASETS.CLEARGRASP.CATEGORY_FILE_PATH       = './datasets/ClearGrasp.json'
-__C.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH      = './datasets/cleargrasp-dataset-pcd/transparent/%s-transparent.pcd'
-__C.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH     = './datasets/cleargrasp-dataset-pcd/opaque/%s-opaque.pcd'
+__C.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH      = './datasets/cleargrasp-dataset-pcd/transparent/%s.pcd'
+__C.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH     = './datasets/cleargrasp-dataset-pcd/opaque/%s.pcd'
 
 #
 # Dataset

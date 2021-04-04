@@ -2,6 +2,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 import yaml
+import cv2
 import open3d
 import pyexr
 import matplotlib.pyplot as plt
@@ -47,26 +48,43 @@ def img2pcd(name):
     """Convert a pair of ClearGrasp images with opaque and transparent objects into point clouds.
     """
     mask = IO.get(os.path.join(PATH, "%s-mask.png" % name))
-    mask_pcd = deproject(mask).sum(axis=1) > 0
 
-    opaque_depth = IO.get(os.path.join(PATH, "%s-opaque-depth-img.exr" % name))
-    opaque_pcd = deproject(opaque_depth)[mask_pcd]
-    # randomly sample a subset of point cloud
-    index1 = np.random.choice(opaque_pcd.shape[0], size=int(opaque_pcd.shape[0] * .4), replace=False)
-    opaque_pcd = opaque_pcd[index1]
-    IO.put(os.path.join(OPAQUE_PATH, "%s-opaque.pcd" % name), opaque_pcd)
+    # Separate multiple objects into multiple point clouds
+    mask_copy = np.array(mask * 255, dtype=np.uint8)
+    contours, hierarchy = cv2.findContours(mask_copy, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    obj_idx = 0
+    for i in range(len(contours)):
+        if cv2.contourArea(contours[i]) > 100:
+            mask_i = np.zeros_like(mask)
+            cv2.drawContours(mask_i, contours, contourIdx=i, color=255, thickness=-1)
+            mask_pcd = deproject(mask_i / 255).sum(axis=1) > 0
 
-    transp_depth = IO.get(os.path.join(PATH, "%s-transparent-depth-img.exr" % name))
-    transp_pcd = deproject(transp_depth)[mask_pcd]
-    # randomly sample a smaller subset of point cloud for transparent objects
-    transp_pcd = transp_pcd[index1]
-    index2 = np.random.choice(transp_pcd.shape[0], size=int(transp_pcd.shape[0] * .2), replace=False)
-    transp_pcd = transp_pcd[index2]
-    IO.put(os.path.join(TRANSP_PATH, "%s-transparent.pcd" % name), transp_pcd)
+            opaque_depth = IO.get(os.path.join(PATH, "%s-opaque-depth-img.exr" % name))
+            opaque_pcd = deproject(opaque_depth)[mask_pcd]
+            # randomly sample a subset of point cloud
+            # index1 = np.random.choice(opaque_pcd.shape[0], size=int(opaque_pcd.shape[0] * .4), replace=False)
+            # opaque_pcd = opaque_pcd[index1]
+            IO.put(os.path.join(OPAQUE_PATH, "%s-%d.pcd" % (name, obj_idx)), opaque_pcd)
 
-    # print(mask_pcd.sum())
-    # print(opaque_pcd.shape)
-    # print(transp_pcd.shape)
+            transp_depth = IO.get(os.path.join(PATH, "%s-transparent-depth-img.exr" % name))
+            transp_pcd = deproject(transp_depth)[mask_pcd]
+            # randomly sample a smaller subset of point cloud for transparent objects
+            # transp_pcd = transp_pcd[index1]
+            # index2 = np.random.choice(transp_pcd.shape[0], size=int(transp_pcd.shape[0] * .2), replace=False)
+            # transp_pcd = transp_pcd[index2]
+            IO.put(os.path.join(TRANSP_PATH, "%s-%d.pcd" % (name, obj_idx)), transp_pcd)
+
+            obj_idx += 1
+
+            # print(mask_pcd.sum())
+            # print(opaque_pcd.shape)
+            # print(transp_pcd.shape)
+
+        # else:
+        #     mask_i = np.zeros_like(mask)
+        #     cv2.drawContours(mask_i, contours, contourIdx=i, color=255, thickness=5)
+        #     cv2.imshow("%s idx:%d" % (name, i), mask_i)
+        #     cv2.waitKey(0)
 
 
 if __name__ == '__main__':
@@ -74,6 +92,8 @@ if __name__ == '__main__':
     for i in tqdm(range(n_img)):
         name = f'{i:09d}'
         img2pcd(name)
+
+    # img2pcd(f'{171:09d}')
 
     # opaq = pyexr.open(os.path.join(PATH, "000000000-opaque-depth-img.exr")).get("R").squeeze().astype(np.float32)
     # print(opaq.shape)
