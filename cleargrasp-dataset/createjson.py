@@ -2,17 +2,23 @@ import json
 import os
 
 
-name_list = []
-for subdir, dirs, files in os.walk("./cleargrasp-dataset-pcd/opaque"):
+train_list = []
+for subdir, dirs, files in os.walk("./cleargrasp-dataset-pcd/train/opaque"):
     for filename in sorted(files):
         name, extension = os.path.splitext(filename)
-        name_list.append(name)
+        train_list.append(name)
+
+test_list = []
+for subdir, dirs, files in os.walk("./cleargrasp-dataset-pcd/test/opaque"):
+    for filename in sorted(files):
+        name, extension = os.path.splitext(filename)
+        test_list.append(name)
 
 cleargrasp = [{
     "taxonomy_id": "cleargrasp-real-val",
     "taxonomy_name": "ClearGrasp",
-    "test": name_list,
-    "train": [],
+    "test": test_list,
+    "train": train_list,
     "val": []
 }]
 

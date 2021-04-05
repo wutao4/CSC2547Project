@@ -369,8 +369,8 @@ class ClearGraspDataLoader(object):
                 file_list.append({
                     'taxonomy_id': dc['taxonomy_id'],
                     'model_id': s,
-                    'partial_cloud_path': cfg.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH % s,
-                    'gtcloud_path': cfg.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH % s,
+                    'partial_cloud_path': cfg.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH % (subset, s),
+                    'gtcloud_path': cfg.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH % (subset, s),
                 })
 
         logging.info('Complete collecting files of the dataset. Total files: %d' % len(file_list))
