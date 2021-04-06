@@ -48,6 +48,7 @@ __C.CONST                                        = edict()
 __C.CONST.DEVICE                                 = '0'
 __C.CONST.NUM_WORKERS                            = 8
 __C.CONST.N_INPUT_POINTS                         = 2048
+__C.CONST.BIG_N_INPUT_POINTS                     = 16384
 
 #
 # Directories
@@ -77,9 +78,13 @@ __C.NETWORK.GRIDDING_LOSS_ALPHAS                 = [0.1]
 #
 __C.TRAIN                                        = edict()
 __C.TRAIN.BATCH_SIZE                             = 32
-__C.TRAIN.N_EPOCHS                               = 150
+__C.TRAIN.N_EPOCHS                               = 500
 __C.TRAIN.SAVE_FREQ                              = 25
-__C.TRAIN.LEARNING_RATE                          = 1e-4
+# __C.TRAIN.LEARNING_RATE                          = 5e-5 0.5877
+# __C.TRAIN.LEARNING_RATE                          = 2e-4 0.6069
+# __C.TRAIN.LEARNING_RATE                          = 5e-4 0.6391
+# __C.TRAIN.LEARNING_RATE                          = 1e-3 0.6339
+__C.TRAIN.LEARNING_RATE                          = 2e-4
 __C.TRAIN.LR_MILESTONES                          = [50]
 __C.TRAIN.GAMMA                                  = .5
 __C.TRAIN.BETAS                                  = (.9, .999)

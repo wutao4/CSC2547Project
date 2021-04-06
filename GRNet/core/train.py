@@ -31,6 +31,7 @@ def train_net(cfg):
     # Set up data loader
     train_dataset_loader = utils.data_loaders.DATASET_LOADER_MAPPING[cfg.DATASET.TRAIN_DATASET](cfg)
     test_dataset_loader = utils.data_loaders.DATASET_LOADER_MAPPING[cfg.DATASET.TEST_DATASET](cfg)
+    print('train_dataset_loader')
     train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset_loader.get_dataset(
         utils.data_loaders.DatasetSubset.TRAIN),
                                                     batch_size=cfg.TRAIN.BATCH_SIZE,
@@ -39,8 +40,9 @@ def train_net(cfg):
                                                     pin_memory=True,
                                                     shuffle=True,
                                                     drop_last=True)
+    print('test_dataset_loader')
     val_data_loader = torch.utils.data.DataLoader(dataset=test_dataset_loader.get_dataset(
-        utils.data_loaders.DatasetSubset.VAL),
+        utils.data_loaders.DatasetSubset.TEST),
                                                   batch_size=1,
                                                   num_workers=cfg.CONST.NUM_WORKERS,
                                                   collate_fn=utils.data_loaders.collate_fn,
@@ -88,6 +90,7 @@ def train_net(cfg):
     if 'WEIGHTS' in cfg.CONST:
         logging.info('Recovering from %s ...' % (cfg.CONST.WEIGHTS))
         checkpoint = torch.load(cfg.CONST.WEIGHTS)
+        # best_metrics = Metrics(cfg.TEST.METRIC_NAME, checkpoint['best_metrics'])
         best_metrics = Metrics(cfg.TEST.METRIC_NAME, checkpoint['best_metrics'])
         grnet.load_state_dict(checkpoint['grnet'])
         logging.info('Recover complete. Current epoch = #%d; best metrics = %s.' % (init_epoch, best_metrics))
@@ -138,7 +141,8 @@ def train_net(cfg):
             (epoch_idx, cfg.TRAIN.N_EPOCHS, epoch_end_time - epoch_start_time, ['%.4f' % l for l in losses.avg()]))
 
         # Validate the current model
-        metrics = test_net(cfg, epoch_idx, val_data_loader, val_writer, grnet)
+        if epoch_idx % cfg.TRAIN.SAVE_FREQ in [0, 1] :
+            metrics = test_net(cfg, epoch_idx, val_data_loader, val_writer, grnet)
 
         # Save ckeckpoints
         if epoch_idx % cfg.TRAIN.SAVE_FREQ == 0 or metrics.better_than(best_metrics):

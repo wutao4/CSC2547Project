@@ -43,8 +43,15 @@ class AverageMeter(object):
 
     def avg(self, idx=None):
         if idx is None:
+            # print('count', self._count, self.items)
+            # if self._count == [0, 0]:
+            #     self._count[0] += 1
+            #     self._count[1] += 1
+            #     return [0, 32767]
             return self._sum[0] / self._count[0] if self.items is None else [
                 self._sum[i] / self._count[i] for i in range(self.n_items)
             ]
         else:
+            # if self._count[idx] == 0:
+            #     return self._sum[idx]
             return self._sum[idx] / self._count[idx]

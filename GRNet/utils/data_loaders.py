@@ -36,6 +36,7 @@ def collate_fn(batch):
         model_ids.append(sample[1])
         _data = sample[2]
         for k, v in _data.items():
+            # print(k, v.shape)
             if k not in data:
                 data[k] = []
             data[k].append(v)
@@ -330,6 +331,12 @@ class ClearGraspDataLoader(object):
                     'n_points': cfg.CONST.N_INPUT_POINTS
                 },
                 'objects': ['partial_cloud']
+            }, {
+                'callback': 'RandomSamplePoints',
+                'parameters': {
+                    'n_points': cfg.CONST.BIG_N_INPUT_POINTS
+                },
+                'objects': ['gtcloud']
             }, {
                 'callback': 'RandomMirrorPoints',
                 'objects': ['partial_cloud', 'gtcloud']
