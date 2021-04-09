@@ -30,6 +30,7 @@ __C.DATASETS.KITTI.PARTIAL_POINTS_PATH           = '/home/SENSETIME/xiehaozhe/Da
 __C.DATASETS.KITTI.BOUNDING_BOX_FILE_PATH        = '/home/SENSETIME/xiehaozhe/Datasets/KITTI/bboxes/%s.txt'
 __C.DATASETS.CLEARGRASP                          = edict()
 __C.DATASETS.CLEARGRASP.CATEGORY_FILE_PATH       = './datasets/ClearGrasp.json'
+# __C.DATASETS.CLEARGRASP.CATEGORY_FILE_PATH       = './datasets/ClearGrasp-test.json'
 __C.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH      = './datasets/cleargrasp-dataset-pcd/%s/transparent/%s.pcd'
 __C.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH     = './datasets/cleargrasp-dataset-pcd/%s/opaque/%s.pcd'
 
@@ -82,7 +83,7 @@ __C.TRAIN.N_EPOCHS                               = 500
 __C.TRAIN.SAVE_FREQ                              = 25
 # __C.TRAIN.LEARNING_RATE                          = 5e-5 0.5877
 # __C.TRAIN.LEARNING_RATE                          = 2e-4 0.6069
-# __C.TRAIN.LEARNING_RATE                          = 5e-4 0.6391
+# __C.TRAIN.LEARNING_RATE                          = 5e-4 0.6391-0.6424 / epoch400 ~0.640 / epoch300 ~0.630
 # __C.TRAIN.LEARNING_RATE                          = 1e-3 0.6339
 __C.TRAIN.LEARNING_RATE                          = 2e-4
 __C.TRAIN.LR_MILESTONES                          = [50]
