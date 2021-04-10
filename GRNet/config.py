@@ -33,14 +33,19 @@ __C.DATASETS.CLEARGRASP.CATEGORY_FILE_PATH       = './datasets/ClearGrasp.json'
 # __C.DATASETS.CLEARGRASP.CATEGORY_FILE_PATH       = './datasets/ClearGrasp-test.json'
 __C.DATASETS.CLEARGRASP.PARTIAL_POINTS_PATH      = './datasets/cleargrasp-dataset-pcd/%s/transparent/%s.pcd'
 __C.DATASETS.CLEARGRASP.COMPLETE_POINTS_PATH     = './datasets/cleargrasp-dataset-pcd/%s/opaque/%s.pcd'
+__C.DATASETS.FRANKASCAN                          = edict()
+__C.DATASETS.FRANKASCAN.CATEGORY_FILE_PATH       = './datasets/FrankaScan.json'
+__C.DATASETS.FRANKASCAN.POINTS_DIR_PATH          = './datasets/frankascan/%s/%s/'
+__C.DATASETS.FRANKASCAN.PARTIAL_POINTS_PATH      = './datasets/frankascan/%s/%s/depth2pcd_%s.pcd'
+__C.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH     = './datasets/frankascan/%s/%s/depth2pcd_GT_%s.pcd'
 
 #
 # Dataset
 #
 __C.DATASET                                      = edict()
-# Dataset Options: Completion3D, ShapeNet, ShapeNetCars, KITTI, ClearGrasp
-__C.DATASET.TRAIN_DATASET                        = 'ClearGrasp'
-__C.DATASET.TEST_DATASET                         = 'ClearGrasp'
+# Dataset Options: Completion3D, ShapeNet, ShapeNetCars, KITTI, ClearGrasp, FrankaScan
+__C.DATASET.TRAIN_DATASET                        = 'FrankaScan'
+__C.DATASET.TEST_DATASET                         = 'FrankaScan'
 
 #
 # Constants

@@ -5,6 +5,7 @@
 # @Last Modified time: 2020-02-22 19:21:32
 # @Email:  cshzxie@gmail.com
 
+import os
 import json
 import logging
 import numpy as np
@@ -384,6 +385,91 @@ class ClearGraspDataLoader(object):
         return file_list
 
 
+class FrankaScanDataLoader(object):
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+        # Load the dataset indexing file
+        self.dataset_categories = []
+        with open(cfg.DATASETS.FRANKASCAN.CATEGORY_FILE_PATH) as f:
+            self.dataset_categories = json.loads(f.read())
+
+    def get_dataset(self, subset):
+        file_list = self._get_file_list(self.cfg, self._get_subset(subset))
+        transforms = self._get_transforms(self.cfg, subset)
+        return Dataset({
+            'required_items': ['partial_cloud', 'gtcloud'],
+            'shuffle': subset == DatasetSubset.TRAIN
+        }, file_list, transforms)
+
+    def _get_transforms(self, cfg, subset):
+        if subset == DatasetSubset.TRAIN:
+            return utils.data_transforms.Compose([{
+                'callback': 'RandomSamplePoints',
+                'parameters': {
+                    'n_points': cfg.CONST.N_INPUT_POINTS
+                },
+                'objects': ['partial_cloud']
+            }, {
+                'callback': 'RandomSamplePoints',
+                'parameters': {
+                    'n_points': cfg.CONST.BIG_N_INPUT_POINTS
+                },
+                'objects': ['gtcloud']
+            }, {
+                'callback': 'RandomMirrorPoints',
+                'objects': ['partial_cloud', 'gtcloud']
+            }, {
+                'callback': 'ToTensor',
+                'objects': ['partial_cloud', 'gtcloud']
+            }])
+        else:
+            return utils.data_transforms.Compose([{
+                'callback': 'RandomSamplePoints',
+                'parameters': {
+                    'n_points': cfg.CONST.N_INPUT_POINTS
+                },
+                'objects': ['partial_cloud']
+            }, {
+                'callback': 'ToTensor',
+                'objects': ['partial_cloud', 'gtcloud']
+            }])
+
+    def _get_subset(self, subset):
+        if subset == DatasetSubset.TRAIN:
+            return 'train'
+        elif subset == DatasetSubset.VAL:
+            return 'val'
+        else:
+            return 'test'
+
+    def _get_file_list(self, cfg, subset):
+        """Prepare file list for the dataset"""
+        file_list = []
+
+        for dc in self.dataset_categories:
+            logging.info('Collecting files of Taxonomy [ID=%s, Name=%s]' % (dc['taxonomy_id'], dc['taxonomy_name']))
+            samples = dc[subset]
+
+            for s in tqdm(samples, leave=False):
+                for subdir, dirs, files in os.walk(cfg.DATASETS.FRANKASCAN.POINTS_DIR_PATH % (subset, s)):
+                    for filename in files:
+                        name, extension = os.path.splitext(filename)
+                        if 'depth2pcd_GT_' in name:
+                            obj_idx = name[-1]  # the last char is the object index
+                            file_list.append({
+                                'taxonomy_id': dc['taxonomy_id'],
+                                'model_id': '%s-%s' % (s, obj_idx),
+                                'partial_cloud_path':
+                                    cfg.DATASETS.FRANKASCAN.PARTIAL_POINTS_PATH % (subset, s, obj_idx),
+                                'gtcloud_path':
+                                    cfg.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH % (subset, s, obj_idx),
+                            })
+
+        logging.info('Complete collecting files of the dataset. Total files: %d' % len(file_list))
+        return file_list
+
+
 # //////////////////////////////////////////// = Dataset Loader Mapping = //////////////////////////////////////////// #
 
 DATASET_LOADER_MAPPING = {
@@ -391,5 +477,6 @@ DATASET_LOADER_MAPPING = {
     'ShapeNet': ShapeNetDataLoader,
     'ShapeNetCars': ShapeNetCarsDataLoader,
     'KITTI': KittiDataLoader,
-    'ClearGrasp': ClearGraspDataLoader
+    'ClearGrasp': ClearGraspDataLoader,
+    'FrankaScan': FrankaScanDataLoader,
 }  # yapf: disable
