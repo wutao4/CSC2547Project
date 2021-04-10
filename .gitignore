@@ -2,6 +2,7 @@
 cleargrasp-dataset-pcd/
 cleargrasp-dataset-test-val/
 shapenet-chair/
+frankascan/
 
 # Pre-trained weights
 *.pth
