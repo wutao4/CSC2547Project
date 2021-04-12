@@ -74,6 +74,8 @@ class Dataset(torch.utils.data.dataset.Dataset):
         if self.transforms is not None:
             data = self.transforms(data)
 
+
+
         return sample['taxonomy_id'], sample['model_id'], data
 
 
@@ -400,6 +402,7 @@ class FrankaScanDataLoader(object):
         return Dataset({
             'required_items': ['partial_cloud', 'gtcloud'],
             'shuffle': subset == DatasetSubset.TRAIN
+            # 'shuffle': False
         }, file_list, transforms)
 
     def _get_transforms(self, cfg, subset):
@@ -452,19 +455,15 @@ class FrankaScanDataLoader(object):
             samples = dc[subset]
 
             for s in tqdm(samples, leave=False):
-                for subdir, dirs, files in os.walk(cfg.DATASETS.FRANKASCAN.POINTS_DIR_PATH % (subset, s)):
-                    for filename in files:
-                        name, extension = os.path.splitext(filename)
-                        if 'depth2pcd_GT_' in name:
-                            obj_idx = name[-1]  # the last char is the object index
-                            file_list.append({
-                                'taxonomy_id': dc['taxonomy_id'],
-                                'model_id': '%s-%s' % (s, obj_idx),
-                                'partial_cloud_path':
-                                    cfg.DATASETS.FRANKASCAN.PARTIAL_POINTS_PATH % (subset, s, obj_idx),
-                                'gtcloud_path':
-                                    cfg.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH % (subset, s, obj_idx),
-                            })
+                dirname, obj_idx = s.split('-')
+                file_list.append({
+                    'taxonomy_id': dc['taxonomy_id'],
+                    'model_id': s,
+                    'partial_cloud_path':
+                        cfg.DATASETS.FRANKASCAN.PARTIAL_POINTS_PATH % (subset, dirname, obj_idx),
+                    'gtcloud_path':
+                        cfg.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH % (subset, dirname, obj_idx),
+                })
 
         logging.info('Complete collecting files of the dataset. Total files: %d' % len(file_list))
         return file_list

@@ -2,15 +2,21 @@ import json
 import os
 
 
-train_list = []
-for subdir, dirs, files in os.walk("./frankascan/train"):
-    for name in sorted(dirs):
-        train_list.append(name)
+def get_list(path):
+    pt_list = []
+    for _, dirs, _ in os.walk(path):
+        for dirname in sorted(dirs):
+            for _, _, files in os.walk(os.path.join(path, dirname)):
+                for filename in files:
+                    if 'depth2pcd_GT_' in filename:
+                        name, extension = os.path.splitext(filename)
+                        obj_idx = name[-1]  # the last char is the object index
+                        pt_list.append("%s-%s" % (dirname, obj_idx))
+    return pt_list
 
-test_list = []
-for subdir, dirs, files in os.walk("./frankascan/test"):
-    for name in sorted(dirs):
-        test_list.append(name)
+
+train_list = get_list("./frankascan/train")
+test_list = get_list("./frankascan/test")
 
 frankascan = [{
     "taxonomy_id": "frankascan",
