@@ -33,6 +33,7 @@ def get_args_from_command_line():
     parser.add_argument('--test', dest='test', help='Test neural networks', action='store_true')
     parser.add_argument('--inference', dest='inference', help='Inference for benchmark', action='store_true')
     parser.add_argument('--weights', dest='weights', help='Initialize network from the weights file', default=None)
+    parser.add_argument('--savepred', dest='save_pred', help='Save predicted point clouds', action='store_true')
     args = parser.parse_args()
     return args
 
@@ -45,6 +46,8 @@ def main():
         cfg.CONST.DEVICE = args.gpu_id
     if args.weights is not None:
         cfg.CONST.WEIGHTS = args.weights
+    if args.save_pred is not None:
+        cfg.TEST.SAVE_PRED = args.save_pred
 
     # Print config
     print('Use config:')

@@ -16,6 +16,7 @@ from extensions.gridding_loss import GriddingLoss
 from models.grnet import GRNet
 from utils.average_meter import AverageMeter
 from utils.metrics import Metrics
+from utils.io import IO
 
 
 def test_net(cfg, epoch_idx=-1, test_data_loader=None, test_writer=None, grnet=None):
@@ -73,6 +74,13 @@ def test_net(cfg, epoch_idx=-1, test_data_loader=None, test_writer=None, grnet=N
             test_losses.update([sparse_loss.item() * 1000, dense_loss.item() * 1000])
             _metrics = Metrics.get(dense_ptcloud, data['gtcloud'])
             test_metrics.update(_metrics)
+
+            # save predicted point cloud
+            if cfg.TEST.SAVE_PRED:
+                if cfg.DATASET.TEST_DATASET == 'FrankaScan':
+                    dirname, obj_idx = model_id.split('-')
+                    out_ptcloud = dense_ptcloud[0].cpu()
+                    IO.put(cfg.DATASETS.FRANKASCAN.PREDICTION_PATH % (dirname, obj_idx), out_ptcloud)
 
             if taxonomy_id not in category_metrics:
                 category_metrics[taxonomy_id] = AverageMeter(Metrics.names())
