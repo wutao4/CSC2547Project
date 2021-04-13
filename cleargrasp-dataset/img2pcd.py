@@ -2,6 +2,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 import yaml
+import json
 import cv2
 import open3d
 import pyexr
@@ -52,7 +53,7 @@ def deproject(depth_image, inv_k):
     return points_3d
 
 
-def img2pcd(name, load_path, save_path, inv_k, plot=False):
+def img2pcd(name, load_path, save_path, inv_k, normalize=False, plot=False):
     """Convert a pair of ClearGrasp images with opaque and transparent objects into point clouds.
     """
     mask = IO.get(os.path.join(load_path, "%s-mask.png" % name))
@@ -77,18 +78,20 @@ def img2pcd(name, load_path, save_path, inv_k, plot=False):
 
             opaque_depth = IO.get(os.path.join(load_path, "%s-opaque-depth-img.exr" % name))
             opaque_pcd = deproject(opaque_depth, inv_k)[mask_pcd]
-            # Randomly sample a subset of point cloud
-            # index1 = np.random.choice(opaque_pcd.shape[0], size=int(opaque_pcd.shape[0] * .4), replace=False)
-            # opaque_pcd = opaque_pcd[index1]
             IO.put(os.path.join(save_path, "opaque/%s-%d.pcd" % (name, obj_idx)), opaque_pcd)
 
             transp_depth = IO.get(os.path.join(load_path, "%s-transparent-depth-img.exr" % name))
             transp_pcd = deproject(transp_depth, inv_k)[mask_pcd]
-            # Randomly sample a smaller subset of point cloud for transparent objects
-            # transp_pcd = transp_pcd[index1]
-            # index2 = np.random.choice(transp_pcd.shape[0], size=int(transp_pcd.shape[0] * .2), replace=False)
-            # transp_pcd = transp_pcd[index2]
             IO.put(os.path.join(save_path, "transparent/%s-%d.pcd" % (name, obj_idx)), transp_pcd)
+
+            if normalize:  # normalize pcd to be within [-1, 1] for gridding
+                max_val = np.nanmax((np.max(np.abs(opaque_pcd)), np.max(np.abs(transp_pcd))))
+                if max_val > 1:
+                    print(max_val)
+                opaque_pcd /= max_val * 1.01
+                transp_pcd /= max_val * 1.01
+                with open(os.path.join(save_path, "norm_factors/%s-%d.json" % (name, obj_idx)), 'w') as outfile:
+                    json.dump(max_val * 1.01, outfile)
 
             obj_idx += 1
 
@@ -109,13 +112,13 @@ if __name__ == '__main__':
     n_train = 173
     for i in tqdm(range(n_train)):
         name = f'{i:09d}'
-        img2pcd(name, TRAIN_LOAD_PATH, TRAIN_SAVE_PATH, INV_K1)
+        img2pcd(name, TRAIN_LOAD_PATH, TRAIN_SAVE_PATH, INV_K1, normalize=True)
 
     # Create test-set point clouds from ClearGrasp 'real-test' images
     n_test = 90
     for i in tqdm(range(n_test)):
         name = f'{i:09d}'
-        img2pcd(name, TEST_LOAD_PATH, TEST_SAVE_PATH, INV_K2)
+        img2pcd(name, TEST_LOAD_PATH, TEST_SAVE_PATH, INV_K2, normalize=True)
 
     # img2pcd(f'{3:09d}', TRAIN_LOAD_PATH, TRAIN_SAVE_PATH, INV_K1, plot=True)
     # img2pcd(f'{89:09d}', TEST_LOAD_PATH, TEST_SAVE_PATH, INV_K2, plot=True)

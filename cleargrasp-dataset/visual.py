@@ -1,15 +1,10 @@
 import numpy as np
 import open3d as o3d
-from open3d.open3d_pybind.utility import VerbosityLevel, set_verbosity_level, get_verbosity_level
 
 from utils import IO
 
 
 if __name__ == '__main__':
-    # print(get_verbosity_level())
-    # set_verbosity_level(VerbosityLevel.Error)  # try to disable printing "Format = .." in read_point_cloud
-    # print(get_verbosity_level())
-
     dset = 'test'
     name = f'{41:09d}-3'
 
