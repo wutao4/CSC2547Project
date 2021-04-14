@@ -43,7 +43,7 @@ def deproject(depth_image, inv_k):
     return points_3d
 
 
-def img2pcd(name, load_path, save_path, inv_k, plot=False, normalize=None, skip=False):
+def img2pcd(name, load_path, save_path, inv_k, centering=False, normalize=False, skip=False, plot=False):
     """Convert a pair of ClearGrasp images with opaque and transparent objects into point clouds.
     """
     mask = IO.get(os.path.join(load_path, "%s/instance_segment.png" % name))
@@ -62,13 +62,15 @@ def img2pcd(name, load_path, save_path, inv_k, plot=False, normalize=None, skip=
 
         opaque_depth = IO.get(os.path.join(load_path, "%s/detph_GroundTruth.exr" % name))
         opaque_pcd = deproject(opaque_depth, inv_k)[mask_pcd]
-
+        gt_center = opaque_pcd.mean(axis=0)
 
         transp_depth = IO.get(os.path.join(load_path, "%s/depth.exr" % name))
         transp_pcd = deproject(transp_depth, inv_k)[mask_pcd]
 
+        if centering:
+            opaque_pcd -= gt_center
+            transp_pcd -= gt_center
         maxdis.append(np.max((np.max(np.abs(opaque_pcd)), np.max(np.abs(transp_pcd)))))
-
         if normalize and not skip:
             opaque_pcd /= maxdis[-1] * 1.01
             transp_pcd /= maxdis[-1] * 1.01
@@ -79,9 +81,15 @@ def img2pcd(name, load_path, save_path, inv_k, plot=False, normalize=None, skip=
             os.mkdir(os.path.join(save_path, name))
         if maxdis[-1] == 0:
             print((name, i))
-        # save maxdis[-1] * 1.01
+        # save centering and scaling factors
+        factors = {
+            'centering': centering,
+            'groundtruth_center': gt_center.tolist(),
+            'normalize': normalize,
+            'normalize_factor': maxdis[-1] * 1.01,
+        }
         with open(os.path.join(save_path, "%s/scale_factor_%d.json" % (name, i)), 'w') as outfile:
-            json.dump(maxdis[-1] * 1.01, outfile)
+            json.dump(factors, outfile)
 
         IO.put(os.path.join(save_path, "%s/depth2pcd_GT_%d.pcd" % (name, i)), opaque_pcd)
         IO.put(os.path.join(save_path, "%s/depth2pcd_%d.pcd" % (name, i)), transp_pcd)
@@ -95,18 +103,21 @@ if __name__ == '__main__':
     # Create point clouds from depth images
     maxdis = []
     skip_count = 0
-    normalize = 65.5625 * 1.01
+    centering = True
+    normalize = True
     skip = False
     print("Converting point clouds for training set...")
     for subdir, dirs, files in os.walk(TRAIN_PATH):
         for dirname in tqdm(dirs):
-            max, skip = img2pcd(dirname, load_path=TRAIN_PATH, save_path=SAVE_TRAIN_PATH, inv_k=INV_K, normalize=normalize, skip=skip)
+            max, skip = img2pcd(dirname, load_path=TRAIN_PATH, save_path=SAVE_TRAIN_PATH, inv_k=INV_K,
+                                centering=centering, normalize=normalize, skip=skip)
             maxdis.append(max)
             skip_count += skip
     print("Converting point clouds for test set...")
     for subdir, dirs, files in os.walk(TEST_PATH):
         for dirname in tqdm(dirs):
-            max, skip = img2pcd(dirname, load_path=TEST_PATH, save_path=SAVE_TEST_PATH, inv_k=INV_K, normalize=normalize, skip=skip)
+            max, skip = img2pcd(dirname, load_path=TEST_PATH, save_path=SAVE_TEST_PATH, inv_k=INV_K,
+                                centering=centering, normalize=normalize, skip=skip)
             maxdis.append(max)
             skip_count += skip
 
@@ -114,4 +125,5 @@ if __name__ == '__main__':
     if skip:
         print(skip_count)
 
-    # img2pcd('1617656782.0434363', TRAIN_PATH, TRAIN_PATH, INV_K, plot=True)
+    # img2pcd('1617656782.0434363', TRAIN_PATH, SAVE_TRAIN_PATH, INV_K, plot=True)
+    # img2pcd('1617662669.3255167', TEST_PATH, SAVE_TEST_PATH, INV_K, centering=True, normalize=True)

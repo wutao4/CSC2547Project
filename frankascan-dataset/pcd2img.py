@@ -47,7 +47,7 @@ def project_to_image(k, point_cloud, round_px=True):
     return depth_data
 
 
-def pcd2img(name, load_path, save_path, k, norm_factor_path=None):
+def pcd2img(name, load_path, save_path, k, factor_path=None):
     """Convert point clouds to depth images.
     """
     mask = IO.get(os.path.join(load_path, "%s/instance_segment.png" % name))
@@ -59,11 +59,13 @@ def pcd2img(name, load_path, save_path, k, norm_factor_path=None):
     mask_vals = np.unique(mask[:, :, 2])[1:]
     for i in range(len(mask_vals)):
         pcd_i = IO.get(os.path.join(load_path, "%s/depth2pcd_pred_%d.pcd" % (name, i)))
-        if norm_factor_path is not None:
-            with open(os.path.join(norm_factor_path, "%s/scale_factor_%d.json" % (name, i))) as f:
-                norm_factor_i = float(json.loads(f.read()))
-                # print(norm_factor_i)
-                pcd_i *= norm_factor_i
+        if factor_path is not None:
+            with open(os.path.join(factor_path, "%s/scale_factor_%d.json" % (name, i))) as f:
+                factors = json.loads(f.read())
+                if factors['normalize']:
+                    pcd_i *= float(factors['normalize_factor'])
+                if factors['centering']:
+                    pcd_i += np.array(factors['groundtruth_center'])
         depth_i = project_to_image(k, pcd_i)
         mask_i = np.array(mask[:, :, 2] == mask_vals[i], dtype=np.float32)
         depth_out += depth_i * mask_i
@@ -77,4 +79,6 @@ if __name__ == '__main__':
     print("Converting point clouds to depth images...")
     for subdir, dirs, files in os.walk(TEST_PATH):
         for dirname in tqdm(sorted(dirs)):
-            pcd2img(dirname, load_path=TEST_PATH, save_path=SAVE_TEST_PATH, k=K, norm_factor_path=FACTOR_PATH)
+            pcd2img(dirname, load_path=TEST_PATH, save_path=SAVE_TEST_PATH, k=K, factor_path=FACTOR_PATH)
+
+    # pcd2img('1617662669.3255167', TEST_PATH, SAVE_TEST_PATH, K, factor_path=FACTOR_PATH)

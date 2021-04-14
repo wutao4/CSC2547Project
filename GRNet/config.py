@@ -39,6 +39,7 @@ __C.DATASETS.FRANKASCAN.CATEGORY_FILE_PATH       = './datasets/FrankaScan.json'
 __C.DATASETS.FRANKASCAN.POINTS_DIR_PATH          = './datasets/frankascan/%s/%s/'
 __C.DATASETS.FRANKASCAN.PARTIAL_POINTS_PATH      = './datasets/frankascan/%s/%s/depth2pcd_%s.pcd'
 __C.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH     = './datasets/frankascan/%s/%s/depth2pcd_GT_%s.pcd'
+__C.DATASETS.FRANKASCAN.PREDICTION_PATH          = './datasets/frankascan/test/%s/depth2pcd_pred_%s.pcd'
 
 #
 # Dataset
@@ -87,10 +88,6 @@ __C.TRAIN                                        = edict()
 __C.TRAIN.BATCH_SIZE                             = 32
 __C.TRAIN.N_EPOCHS                               = 500
 __C.TRAIN.SAVE_FREQ                              = 25
-# __C.TRAIN.LEARNING_RATE                          = 5e-5 0.5877
-# __C.TRAIN.LEARNING_RATE                          = 2e-4 0.6069
-# __C.TRAIN.LEARNING_RATE                          = 5e-4 0.6391-0.6424 / epoch400 ~0.640 / epoch300 ~0.630
-# __C.TRAIN.LEARNING_RATE                          = 1e-3 0.6339
 __C.TRAIN.LEARNING_RATE                          = 1e-4
 __C.TRAIN.LR_MILESTONES                          = [50]
 __C.TRAIN.GAMMA                                  = .5
@@ -102,3 +99,4 @@ __C.TRAIN.WEIGHT_DECAY                           = 0
 #
 __C.TEST                                         = edict()
 __C.TEST.METRIC_NAME                             = 'ChamferDistance'
+__C.TEST.SAVE_PRED                               = False
