@@ -60,16 +60,17 @@ def img2pcd(name, load_path, save_path, inv_k, centering=False, normalize=False,
 
         mask_pcd = deproject(mask_i, inv_k).sum(axis=1) > 0
 
-        opaque_depth = IO.get(os.path.join(load_path, "%s/detph_GroundTruth.exr" % name))
-        opaque_pcd = deproject(opaque_depth, inv_k)[mask_pcd]
-        gt_center = opaque_pcd.mean(axis=0)
+        # opaque_depth = IO.get(os.path.join(load_path, "%s/detph_GroundTruth.exr" % name))
+        # opaque_pcd = deproject(opaque_depth, inv_k)[mask_pcd]
+        opaque_pcd = IO.get(os.path.join(load_path, "%s/Ground_Truth_%d.pcd" % (name, i)))
 
         transp_depth = IO.get(os.path.join(load_path, "%s/depth.exr" % name))
         transp_pcd = deproject(transp_depth, inv_k)[mask_pcd]
+        center = transp_pcd.mean(axis=0)
 
         if centering:
-            opaque_pcd -= gt_center
-            transp_pcd -= gt_center
+            opaque_pcd -= center
+            transp_pcd -= center
         maxdis.append(np.max((np.max(np.abs(opaque_pcd)), np.max(np.abs(transp_pcd)))))
         if normalize and not skip:
             opaque_pcd /= maxdis[-1] * 1.01
@@ -84,14 +85,15 @@ def img2pcd(name, load_path, save_path, inv_k, centering=False, normalize=False,
         # save centering and scaling factors
         factors = {
             'centering': centering,
-            'groundtruth_center': gt_center.tolist(),
+            'center_position': center.tolist(),
             'normalize': normalize,
             'normalize_factor': maxdis[-1] * 1.01,
         }
         with open(os.path.join(save_path, "%s/scale_factor_%d.json" % (name, i)), 'w') as outfile:
             json.dump(factors, outfile)
 
-        IO.put(os.path.join(save_path, "%s/depth2pcd_GT_%d.pcd" % (name, i)), opaque_pcd)
+        # IO.put(os.path.join(save_path, "%s/depth2pcd_GT_%d.pcd" % (name, i)), opaque_pcd)
+        IO.put(os.path.join(save_path, "%s/Ground_Truth_recenter_%d.pcd" % (name, i)), opaque_pcd)
         IO.put(os.path.join(save_path, "%s/depth2pcd_%d.pcd" % (name, i)), transp_pcd)
         # print(mask_pcd.sum())
         # print(opaque_pcd.shape)

@@ -65,7 +65,7 @@ def pcd2img(name, load_path, save_path, k, factor_path=None):
                 if factors['normalize']:
                     pcd_i *= float(factors['normalize_factor'])
                 if factors['centering']:
-                    pcd_i += np.array(factors['groundtruth_center'])
+                    pcd_i += np.array(factors['center_position'])
         depth_i = project_to_image(k, pcd_i)
         mask_i = np.array(mask[:, :, 2] == mask_vals[i], dtype=np.float32)
         depth_out += depth_i * mask_i

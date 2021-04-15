@@ -38,7 +38,8 @@ __C.DATASETS.FRANKASCAN.CATEGORY_FILE_PATH       = './datasets/FrankaScan.json'
 # __C.DATASETS.FRANKASCAN.CATEGORY_FILE_PATH       = './datasets/FrankaScan-test.json'
 __C.DATASETS.FRANKASCAN.POINTS_DIR_PATH          = './datasets/frankascan/%s/%s/'
 __C.DATASETS.FRANKASCAN.PARTIAL_POINTS_PATH      = './datasets/frankascan/%s/%s/depth2pcd_%s.pcd'
-__C.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH     = './datasets/frankascan/%s/%s/depth2pcd_GT_%s.pcd'
+# __C.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH     = './datasets/frankascan/%s/%s/depth2pcd_GT_%s.pcd'
+__C.DATASETS.FRANKASCAN.COMPLETE_POINTS_PATH     = './datasets/frankascan/%s/%s/Ground_Truth_recenter_%s.pcd'
 __C.DATASETS.FRANKASCAN.PREDICTION_PATH          = './datasets/frankascan/test/%s/depth2pcd_pred_%s.pcd'
 
 #
