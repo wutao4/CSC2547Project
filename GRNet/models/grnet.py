@@ -19,13 +19,17 @@ class RandomPointSampling(torch.nn.Module):
     def forward(self, pred_cloud, partial_cloud=None):
         if partial_cloud is not None:
             pred_cloud = torch.cat([partial_cloud, pred_cloud], dim=1)
-
         _ptcloud = torch.split(pred_cloud, 1, dim=0)
         ptclouds = []
         for p in _ptcloud:
             non_zeros = torch.sum(p, dim=2).ne(0)
-            p = p[non_zeros].unsqueeze(dim=0)
-            n_pts = p.size(1)
+            pn = p[non_zeros].unsqueeze(dim=0)
+            n_pts = pn.size(1)
+            if n_pts != 0:
+                p = pn
+            else:
+                print("All zero pcd")
+                n_pts = p.size(1)
             if n_pts < self.n_points:
                 rnd_idx = torch.cat([torch.randint(0, n_pts, (self.n_points, ))])
             else:
@@ -110,6 +114,9 @@ class GRNet(torch.nn.Module):
 
     def forward(self, data):
         partial_cloud = data['partial_cloud']
+        # max = torch.max(torch.abs(partial_cloud).view(partial_cloud.size(0), -1), dim=1)
+        # partial_cloud /= max.values[:, None, None]*1.01
+        # print("#points rescaled:", torch.sum(max.values[:, None, None] > 1))
         # print(partial_cloud.size())     # torch.Size([batch_size, 2048, 3])
         pt_features_64_l = self.gridding(partial_cloud).view(-1, 1, 64, 64, 64)
         # print(pt_features_64_l.size())  # torch.Size([batch_size, 1, 64, 64, 64])
