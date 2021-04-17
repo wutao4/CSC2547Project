@@ -7,7 +7,7 @@ from img2pcd import deproject, INV_K
 
 
 if __name__ == '__main__':
-    dset = 'frankascan/test'
+    dset = 'frankascan-gtpcd/test'
     name = '1617662669.3255167'
     obj_idx = 1
 
@@ -42,6 +42,21 @@ if __name__ == '__main__':
     pt_gt = deproject(depth_gt, INV_K)
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(pt_gt)
+    print(np.array(pcd.points).shape)
+    o3d.visualization.draw_geometries([pcd])
+
+    # Visualize groundtruth point clouds of all objects and the background
+    mask = IO.get("%s/%s/instance_segment.png" % (dset, name))
+    depth_gt = IO.get("./%s/%s/detph_GroundTruth.exr" % (dset, name))
+    mask_bg = np.array(mask[:, :, 2] == 0, dtype=np.float32)
+    depth_bg = depth_gt * mask_bg
+    pt = deproject(depth_bg, INV_K)
+    mask_vals = np.unique(mask[:, :, 2])[1:]
+    for i in range(len(mask_vals)):
+        pcd_gt_i = IO.get("%s/%s/Ground_Truth_%d.pcd" % (dset, name, i))
+        pt = np.concatenate((pt, pcd_gt_i), axis=0)
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(pt)
     print(np.array(pcd.points).shape)
     o3d.visualization.draw_geometries([pcd])
 
